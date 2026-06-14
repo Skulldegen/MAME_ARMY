@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAME THE LAST SHIBA — Avatar Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0A0A0A;
+    --panel: #111111;
+    --card: #1A1A1A;
+    --border: #2A2A2A;
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dim: rgba(201,168,76,0.15);
+    --white: #F0EDE8;
+    --gray: #888880;
+    --gray-dim: #444440;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 56px;
+    background: rgba(10,10,10,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .logo span { color: var(--white); opacity: 0.4; font-size: 11px; display: block; letter-spacing: 0.3em; font-family: 'Inter', sans-serif; font-weight: 500; margin-top: 1px; }
+
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s ease;
+    text-transform: uppercase;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--gray);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--white); border-color: var(--gray-dim); }
+
+  .btn-gold {
+    background: var(--gold);
+    color: #000;
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
+  .btn-gold:active { transform: translateY(0); }
+
+  .btn-random {
+    background: var(--card);
+    color: var(--white);
+    border: 1px solid var(--border);
+  }
+  .btn-random:hover { border-color: var(--gold); color: var(--gold); }
+
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    height: 100vh;
+    padding-top: 56px;
+  }
+
+
+  .canvas-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0D0D0D;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .canvas-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(201,168,76,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* corner marks */
+  .canvas-panel::after {
+    content: '';
+    position: absolute;
+    inset: 24px;
+    border: 1px solid rgba(201,168,76,0.08);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .avatar-frame {
+    position: relative;
+    width: 440px;
+    height: 440px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(201,168,76,0.2),
+      0 0 60px rgba(0,0,0,0.8),
+      0 20px 80px rgba(0,0,0,0.5);
+  }
+
+  .avatar-frame canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .canvas-label {
+    margin-top: 18px;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--gray-dim);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+ 
+  .sidebar {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 20px 20px 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    line-height: 1;
+  }
+  .sidebar-title span { color: var(--gold); }
+
+  .sidebar-sub {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  
+  .category-tabs {
+    display: flex;
+    gap: 0;
+    padding: 16px 20px 0;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .category-tabs::-webkit-scrollbar { display: none; }
+
+  .cat-tab {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+    color: var(--gray);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .cat-tab:hover { color: var(--white); }
+  .cat-tab.active {
+    color: var(--gold);
+    background: var(--card);
+    border-color: var(--border);
+  }
+  .cat-tab .cat-icon { margin-right: 5px; font-size: 12px; }
+
+  
+  .items-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 20px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .items-panel::-webkit-scrollbar { width: 4px; }
+  .items-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding-top: 14px;
+  }
+
+  .item-card {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .item-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .item-card.selected {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 0 20px rgba(201,168,76,0.2);
+  }
+  .item-card.none-card {
+    border-style: dashed;
+    color: var(--gray-dim);
+  }
+  .item-card.none-card:hover { border-color: var(--gray); color: var(--gray); }
+  .item-card.none-card.selected { border-color: var(--gold); color: var(--gold); border-style: solid; }
+
+  .none-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .none-text {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-bottom: 10px;
+  }
+
+  .item-thumb {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+  .item-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+
+  .item-label {
+    position: relative;
+    z-index: 1;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: rgba(10,10,10,0.85);
+    width: 100%;
+    text-align: center;
+    padding: 5px 4px;
+    backdrop-filter: blur(4px);
+  }
+
+  .selected-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 16px;
+    height: 16px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #000;
+    font-weight: 700;
+  }
+
+
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+  .sidebar-footer .btn { flex: 1; justify-content: center; }
+
+  
+  .loading {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: opacity 0.5s ease;
+  }
+  .loading.hidden { opacity: 0; pointer-events: none; }
+  .loading-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+  }
+  .loading-sub {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .loading-bar-wrap {
+    margin-top: 32px;
+    width: 200px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .loading-bar {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 1px;
+    animation: load 1.2s ease-out forwards;
+  }
+  @keyframes load { from { width: 0; } to { width: 100%; } }
+
+ 
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card);
+    color: var(--white);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 200;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+</style>
+</head>
+<body>
+
+
+<div class="loading" id="loading">
+  <div class="loading-title">MAME</div>
+  <div class="loading-sub">The Last Shiba — Avatar Builder</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<header>
+  <div class="logo">
+    MAME
+    <span>THE LAST SHIBA · AVATAR BUILDER</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-random" onclick="randomize()">🎲 Randomize</button>
+    <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
+    <button class="btn btn-gold" onclick="downloadAvatar()">↓ Download</button>
+  </div>
+</header>
+
+
+<main>
+  
+  <div class="canvas-panel">
+    <div class="avatar-frame">
+      <canvas id="avatarCanvas" width="800" height="800"></canvas>
+    </div>
+    <div class="canvas-label">Preview · 800 × 800</div>
+  </div>
+
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">BUILD YOUR<br><span>MAME</span></div>
+      <div class="sidebar-sub">Mix & match to create the perfect fit</div>
+    </div>
+
+    
+    <div class="category-tabs" id="categoryTabs"></div>
+
+   
+    <div class="items-panel">
+      <div class="items-grid" id="itemsGrid"></div>
+    </div>
+
+
+    <div class="sidebar-footer">
+      <button class="btn btn-random" onclick="randomize()" style="flex:1;justify-content:center">🎲 Randomize</button>
+      <button class="btn btn-gold" onclick="downloadAvatar()" style="flex:1;justify-content:center">↓ Download</button>
+    </div>
+  </div>
+</main>
+
+<script>
+
+// Order = render order (bottom to top)
+const CATEGORIES = [
+ {
+    id: 'background', label: 'Background', icon: '🌌', optional: false,
+    items: [
+      { id: 'space',       label: 'Space',      file: 'assets/backgrounds/space.png' },
+      { id: 'artic',       label: 'Arctic',     file: 'assets/backgrounds/artic.png' },
+      { id: 'beach',       label: 'Beach',      file: 'assets/backgrounds/beach.png' },
+      { id: 'restaurant',  label: 'Restaurant', file: 'assets/backgrounds/restaurant.png' },
+      { id: 'yatch',       label: 'Yacht',      file: 'assets/backgrounds/yatch.png' },
+      { id: 'garage',      label: 'Garage',     file: 'assets/backgrounds/garage.png' },
+      { id: 'casino',      label: 'Casino',     file: 'assets/backgrounds/casino.png' },
+      { id: 'office',      label: 'Office',     file: 'assets/backgrounds/office.png' },
+{ id:'discotec', label:'Discotec', file:'assets/backgrounds/discotec.png' },
+{ id:'president', label:'President', file:'assets/backgrounds/president.png' },
+{ id:'mansion', label:'Mansion', file:'assets/backgrounds/mansion.png' },
+{ id:'dubai', label:'Dubai', file:'assets/backgrounds/dubai.png' },
+{ id:'binance', label:'Binance', file:'assets/backgrounds/binance.png' },
+{ id:'priv_jet', label:'Private Jet', file:'assets/backgrounds/priv_jet.png' },
+    ]
+  },
+  {
+    id: 'base',
+    label: 'Base',
+    icon: '🐕',
+    required: true,
+    items: [
+      { id: 'dog_base', label: 'Shiba Base', file: 'assets/base/dog_base.png' },
+{ id:'base_pink', label:'Pink', file:'assets/base/base_pink.png' },
+{ id:'base_beige', label:'Beige', file:'assets/base/base_beige.png' },
+{ id:'base_galaxy', label:'Galaxy', file:'assets/base/base_galaxy.png' },
+{ id:'base_blue', label:'Blue', file:'assets/base/base_blue.png' },
+    ]
+  },
+  {
+    id: 'expression', label: 'Expression', icon: '😎', optional: true,
+    items: [
+      { id: 'default', label: 'Default', file: 'assets/expressions/default.png' },
+      { id: 'happy',   label: 'Happy',   file: 'assets/expressions/happy.png' },
+      { id: 'angry',   label: 'Angry',   file: 'assets/expressions/angry.png' },
+      { id: 'sad',     label: 'Sad',     file: 'assets/expressions/sad.png' },
+      { id: 'grills',  label: 'Grills',  file: 'assets/expressions/grills.png' },
+{ id:'sleepy', label:'Sleepy', file:'assets/expressions/sleepy.png' },
+{ id:'surprise', label:'Surprise', file:'assets/expressions/surprise.png' },
+{ id:'serious', label:'Serious', file:'assets/expressions/serious.png' },
+{ id:'chad_face', label:'Chad', file:'assets/expressions/chad_face.png' },
+    ]
+  },
+
+   {
+    id: 'clothes', label: 'Clothes', icon: '👔', optional: true,
+    items: [
+      { id: 'lv',        label: 'LV',        file: 'assets/clothes/lv.png' },
+      { id: 'hawai',     label: 'Hawaii',    file: 'assets/clothes/hawai.png' },
+      { id: 'biker',     label: 'Biker',     file: 'assets/clothes/biker.png' },
+      { id: 'suit',      label: 'Suit',      file: 'assets/clothes/suit.png' },
+      { id: 'amiri',     label: 'Amiri',     file: 'assets/clothes/amiri.png' },
+      { id: 'argentina', label: 'Argentina', file: 'assets/clothes/argentina.png' },
+{ id:'police', label:'Police', file:'assets/clothes/police.png' },
+{ id:'doctor', label:'Doctor', file:'assets/clothes/doctor.png' },
+{ id:'nopump_hoodie', label:'NoPump', file:'assets/clothes/nopump_hoodie.png' },
+{ id:'supreme_hoodie', label:'Supreme', file:'assets/clothes/supreme_hoodie.png' },
+{ id:'bnb_hoodie', label:'BNB', file:'assets/clothes/bnb_hoodie.png' },
+    ]
+  },
+
+  {
+    id: 'collar',
+    label: 'Collar',
+    icon: '💎',
+    optional: true,
+    items: [
+      { id: 'diamond_chain', label: 'Diamond Chain', file: 'assets/collars/diamond_chain.png' },
+      { id: 'dog_chain',     label: 'Dog Chain',     file: 'assets/collars/dog_chain.png' },
+      { id: 'og_chain',      label: 'OG Chain',      file: 'assets/collars/og_chain.png' },
+{ id:'btc_chain', label:'BTC Chain', file:'assets/collars/btc_chain.png' },
+    ]
+  },
+   {
+    id: 'hat', label: 'Hat', icon: '🧢', optional: true,
+    items: [
+      { id: 'cap',      label: 'Cap',      file: 'assets/hats/cap.png' },
+      { id: 'bandana',  label: 'Bandana',  file: 'assets/hats/bandana.png' },
+      { id: 'elegant',  label: 'Elegant',  file: 'assets/hats/elegant.png' },
+      { id: 'mame_hat', label: 'Mame Hat', file: 'assets/hats/mame_hat.png' },
+{ id:'nopump_hat', label:'NoPump Hat', file:'assets/hats/nopump_hat.png' },
+{ id:'cowboy', label:'Cowboy', file:'assets/hats/cowboy.png' },
+    ]
+  },
+];
+
+
+const state = {
+  activeCategory: 'background',
+  selections: {
+    background: 'space',
+    base: 'dog_base',
+    expression: 'default',
+    clothes: null,
+    collar: null,
+    hat: null,
+  }
+};
+
+const imageCache = {};
+
+function loadImage(src) {
+  if (imageCache[src]) return Promise.resolve(imageCache[src]);
+
+  return new Promise((resolve) => {
+    const img = new Image();
+
+    img.onload = () => {
+      imageCache[src] = img;
+      resolve(img);
+    };
+
+    img.onerror = () => {
+      console.error('ERROR CARGANDO:', src);
+      resolve(null);
+    };
+
+    img.src = src;
+  });
+}
+
+
+const canvas = document.getElementById('avatarCanvas');
+const ctx = canvas.getContext('2d');
+
+async function render() {
+  ctx.clearRect(0, 0, 800, 800);
+
+  // Draw in layer order: bg → base → expression → clothes → collar → hat
+  const layerOrder = ['background', 'base', 'expression', 'clothes', 'collar', 'hat'];
+
+  for (const catId of layerOrder) {
+    const sel = state.selections[catId];
+    if (!sel) continue;
+    const cat = CATEGORIES.find(c => c.id === catId);
+    const item = cat.items.find(i => i.id === sel);
+    if (!item) continue;
+    const img = await loadImage(item.file);
+    if (img) ctx.drawImage(img, 0, 0, 800, 800);
+  }
+}
+
+
+function buildTabs() {
+  const tabs = document.getElementById('categoryTabs');
+  tabs.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (cat.id === state.activeCategory ? ' active' : '');
+    btn.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.label}`;
+    btn.onclick = () => {
+      state.activeCategory = cat.id;
+      buildTabs();
+      buildGrid();
+    };
+    tabs.appendChild(btn);
+  });
+}
+
+function buildGrid() {
+  const grid = document.getElementById('itemsGrid');
+  const cat = CATEGORIES.find(c => c.id === state.activeCategory);
+  grid.innerHTML = '';
+
+  // None option for optional categories
+  if (
+    cat.optional &&
+    cat.id !== 'background' &&
+    cat.id !== 'expression'
+) {
+    const noneCard = document.createElement('div');
+    noneCard.className =
+        'item-card none-card' +
+        (state.selections[cat.id] === null ? ' selected' : '');
+
+    noneCard.innerHTML = `
+      <div class="none-icon">✕</div>
+      <div class="none-text">None</div>
+    `;
+
+    noneCard.onclick = () => selectItem(cat.id, null);
+    grid.appendChild(noneCard);
+}
+
+  cat.items.forEach(item => {
+    const card = document.createElement('div');
+    const isSelected = state.selections[cat.id] === item.id;
+    card.className = 'item-card' + (isSelected ? ' selected' : '');
+
+    card.innerHTML = `
+      <div class="item-thumb">
+        <img src="${item.file}" alt="${item.label}" loading="lazy" onerror="this.style.opacity='0.2'">
+      </div>
+      <div class="item-label">${item.label}</div>
+      ${isSelected ? '<div class="selected-badge">✓</div>' : ''}
+    `;
+    card.onclick = () => selectItem(cat.id, item.id);
+    grid.appendChild(card);
+  });
+}
+
+function selectItem(catId, itemId) {
+  state.selections[catId] = itemId;
+  buildGrid();
+  render();
+}
+
+
+function randomize() {
+  CATEGORIES.forEach(cat => {
+    const items = cat.items;
+    if (
+    cat.optional &&
+    cat.id !== 'background' &&
+    cat.id !== 'expression'
+) {
+      // 50% chance of no item for optional
+      if (Math.random() < 0.15) {
+        state.selections[cat.id] = null;
+        return;
+      }
+    }
+    const pick = items[Math.floor(Math.random() * items.length)];
+    state.selections[cat.id] = pick.id;
+  });
+  buildGrid();
+  render();
+  showToast('🎲 Random Mame generated!');
+}
+
+
+function resetAll() {
+  state.selections = {
+    background: 'space',
+    base: 'dog_base',
+    expression: 'default',
+    clothes: null,
+    collar: null,
+    hat: null,
+  };
+  buildGrid();
+  render();
+  showToast('↺ Reset to default');
+}
+
+
+async function downloadAvatar() {
+
+  await render();
+
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = 'mame-avatar.png';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast('✓ Avatar downloaded!');
+}
+
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  buildTabs();
+  buildGrid();
+  render().then(() => {
+    setTimeout(() => {
+      document.getElementById('loading').classList.add('hidden');
+    }, 1300);
+  });
+});
+</script>
+</body>
+</html>
