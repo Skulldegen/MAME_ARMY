@@ -735,32 +735,38 @@ const ctx = canvas.getContext('2d');
 async function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw in layer order: bg → base → expression → clothes → collar → hat
   const layerOrder = [
-  'background',
-  'base',
-  'expression',
-  'clothes',
-  'collar',
-  'hat',
-  'glasses',
-  'objects'
-];
+    'background',
+    'base',
+    'expression',
+    'clothes',
+    'collar',
+    'hat',
+    'glasses',
+    'objects'
+  ];
 
   for (const catId of layerOrder) {
     const sel = state.selections[catId];
     if (!sel) continue;
+
     const cat = CATEGORIES.find(c => c.id === catId);
+    if (!cat) continue;
+
     const item = cat.items.find(i => i.id === sel);
     if (!item) continue;
+
     const img = await loadImage(item.file);
-    if (img) ctx.drawImage(
-  img,
-  0,
-  0,
-  canvas.width,
-  canvas.height
-);
+
+    if (img) {
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+    }
   }
 }
 
