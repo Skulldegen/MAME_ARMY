@@ -641,6 +641,20 @@ const CATEGORIES = [
       { id: 'og_chain',      label: 'OG Chain',      file: 'assets/collars/og_chain.png' },
 { id:'btc_chain', label:'BTC Chain', file:'assets/collars/btc_chain.png' },
     ]
+   {
+  id: 'glasses',
+  label: 'Glasses',
+  icon: '🕶️',
+  optional: true,
+  items: [
+    { id:'apple', file:'assets/glasses/apple.png', label:'Apple' },
+    { id:'bomber', file:'assets/glasses/bomber.png', label:'Bomber' },
+    { id:'cyclop', file:'assets/glasses/cyclop.png', label:'Cyclop' },
+    { id:'offwhite', file:'assets/glasses/offwhite.png', label:'Offwhite' },
+    { id:'rayban', file:'assets/glasses/rayban.png', label:'Rayban' },
+    { id:'tdfw', file:'assets/glasses/tdfw.png', label:'TDFW' }
+  ]
+},
   },
    {
     id: 'hat', label: 'Hat', icon: '🧢', optional: true,
@@ -652,6 +666,24 @@ const CATEGORIES = [
 { id:'nopump_hat', label:'NoPump Hat', file:'assets/hats/nopump_hat.png' },
 { id:'cowboy', label:'Cowboy', file:'assets/hats/cowboy.png' },
     ]
+       {
+  id: 'objects',
+  label: 'Objects',
+  icon: '🫳',
+  optional: true,
+  items: [
+    { id:'centurion', file:'assets/objects/centurion.png', label:'Centurion' },
+    { id:'charizard', file:'assets/objects/charizard.png', label:'Charizard' },
+    { id:'greendrug', file:'assets/objects/greendrug.png', label:'Greendrug' },
+    { id:'lil_koma', file:'assets/objects/lil_koma.png', label:'Lil Koma' },
+    { id:'minecraft', file:'assets/objects/minecraft.png', label:'Minecraft' },
+    { id:'money', file:'assets/objects/money.png', label:'Money' },
+    { id:'pump', file:'assets/objects/pump.png', label:'Pump' },
+    { id:'rasengan', file:'assets/objects/rasengan.png', label:'Rasengan' },
+    { id:'rose', file:'assets/objects/rose.png', label:'Rose' },
+    { id:'thief', file:'assets/objects/thief.png', label:'Thief' }
+  ]
+},
   },
 ];
 
@@ -665,6 +697,8 @@ const state = {
     clothes: null,
     collar: null,
     hat: null,
+   glasses: null,
+objects: null,
   }
 };
 
@@ -698,7 +732,16 @@ async function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw in layer order: bg → base → expression → clothes → collar → hat
-  const layerOrder = ['background', 'base', 'expression', 'clothes', 'collar', 'hat'];
+  const layerOrder = [
+  'background',
+  'base',
+  'expression',
+  'clothes',
+  'collar',
+  'hat',
+  'glasses',
+  'objects'
+];
 
   for (const catId of layerOrder) {
     const sel = state.selections[catId];
@@ -814,6 +857,8 @@ function resetAll() {
     clothes: null,
     collar: null,
     hat: null,
+   glasses: null,
+objects: null,
   };
   buildGrid();
   render();
