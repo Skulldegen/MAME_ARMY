@@ -655,18 +655,23 @@ const CATEGORIES = [
     { id:'tdfw', file:'assets/glasses/tdfw.png', label:'TDFW' }
   ]
 },
-  },
-   {
-    id: 'hat', label: 'Hat', icon: '🧢', optional: true,
-    items: [
-      { id: 'cap',      label: 'Cap',      file: 'assets/hats/cap.png' },
-      { id: 'bandana',  label: 'Bandana',  file: 'assets/hats/bandana.png' },
-      { id: 'elegant',  label: 'Elegant',  file: 'assets/hats/elegant.png' },
-      { id: 'mame_hat', label: 'Mame Hat', file: 'assets/hats/mame_hat.png' },
-{ id:'nopump_hat', label:'NoPump Hat', file:'assets/hats/nopump_hat.png' },
-{ id:'cowboy', label:'Cowboy', file:'assets/hats/cowboy.png' },
-    ]
-       {
+
+{
+  id: 'hat',
+  label: 'Hat',
+  icon: '🧢',
+  optional: true,
+  items: [
+    { id:'cap', label:'Cap', file:'assets/hats/cap.png' },
+    { id:'bandana', label:'Bandana', file:'assets/hats/bandana.png' },
+    { id:'elegant', label:'Elegant', file:'assets/hats/elegant.png' },
+    { id:'mame_hat', label:'Mame Hat', file:'assets/hats/mame_hat.png' },
+    { id:'nopump_hat', label:'NoPump Hat', file:'assets/hats/nopump_hat.png' },
+    { id:'cowboy', label:'Cowboy', file:'assets/hats/cowboy.png' }
+  ]
+},
+
+{
   id: 'objects',
   label: 'Objects',
   icon: '🫳',
@@ -683,10 +688,8 @@ const CATEGORIES = [
     { id:'rose', file:'assets/objects/rose.png', label:'Rose' },
     { id:'thief', file:'assets/objects/thief.png', label:'Thief' }
   ]
-},
-  },
+}
 ];
-
 
 const state = {
   activeCategory: 'background',
